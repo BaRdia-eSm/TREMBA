@@ -1,3 +1,5 @@
+from PIL import Image
+import numpy as np
 import argparse
 import torchvision.models as models
 import os
@@ -9,7 +11,7 @@ from Normalize import Normalize, Permute
 from imagenet_model.Resnet import resnet152_denoise, resnet101_denoise
 
 #this function generates iterations in an iterative manner until success or until the maximum number of queries is reached.
-def EmbedBA(function, encoder, decoder, image, label, config, latent=None):
+def EmbedBA(img_idx, function, encoder, decoder, image, label, config, latent=None):
     device = image.device
 
     if latent is None:
@@ -43,6 +45,11 @@ def EmbedBA(function, encoder, decoder, image, label, config, latent=None):
             break
         #if the attack was successful return the perturbed image
         if bool(success.item()):
+            np_data = torch.clamp(image+perturbation, 0, 1).permute(1, 2, 0).numpy()
+            rescaled = (255.0 / np_data.max() * (np_data - np_data.min())).astype(np.uint8)
+            im = Image.fromarray(rescaled)
+            im.save(f'output/{img_idx}.png')
+
             return True, torch.clamp(image+perturbation, 0, 1)
         
         #for a set of sampled gaussian noise vectors, use the mean gradient of the vectors to update the perturbed latent vector. The decoded output of the perturbed latent space is the final adversarial sample 
@@ -204,11 +211,11 @@ for i, (images, labels) in enumerate(dataloader):
                 latents = latents - state['white_box_lr'] * grad
 
             with torch.no_grad():
-                success, adv = EmbedBA(F, encoder, decoder, images[0], labels, state, latents.view(-1))
+                success, adv = EmbedBA(i, F, encoder, decoder, images[0], labels, state, latents.view(-1))
         #if OSP == False, pass the image without calculating the optimum starting point.
         else:
             with torch.no_grad():
-                success, adv = EmbedBA(F, encoder, decoder, images[0], labels, state)
+                success, adv = EmbedBA(i, F, encoder, decoder, images[0], labels, state)
 
         count_success += int(success)
         count_total += int(correct)
