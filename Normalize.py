@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 
-
+#normalize the input image data
 class Normalize(nn.Module):
 
     def __init__(self, mean, std):
@@ -17,6 +17,7 @@ class Normalize(nn.Module):
 
         return x
 
+#swap input dimensions for preprocessing pur·pose.
 class Permute(nn.Module):
 
     def __init__(self, permutation = [2,1,0]):
