@@ -8,6 +8,7 @@ import json
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 
+#preprocess and return imagenet dataset.
 def imagenet(state):
     
     if 'defense' in state and state['defense']:
