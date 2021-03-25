@@ -3,6 +3,7 @@
 import torch
 import torch.nn as nn
 
+#instantiate the encoder architecture
 class Imagenet_Encoder(nn.Module):
 
     def __init__(self):
@@ -67,7 +68,7 @@ class Imagenet_Encoder(nn.Module):
 
         return x
 
-
+#instantiate the decoder architecture.
 class Imagenet_Decoder(nn.Module):
 
     def __init__(self):
