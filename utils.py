@@ -23,7 +23,7 @@ class MarginLoss(nn.Module):
             margin = torch.nn.functional.relu(diff + self.margin, True) - self.margin
         return margin.mean()
 
-
+# used when optimum starting point is set to true.
 class MarginLoss_Single(nn.Module):
 
     def __init__(self, margin=1.0, target=False):
@@ -47,6 +47,7 @@ class MarginLoss_Single(nn.Module):
             margin = torch.nn.functional.relu(diff + self.margin, True) - self.margin
         return margin.mean()
 
+#Receives the model, batch size, etc as input. Implements the _loss method to calculate the loss value for a given input image. Also keeps the number of queries made in order to check if the number exceeds the specified threshold.
 class Function(nn.Module):
 
     def __init__(self, model, batch_size=256, margin=0, nlabels=10, target=False):
@@ -93,11 +94,12 @@ class Function(nn.Module):
 
         return logits, loss
 
+    #saves the number of queries for the previous image and starts a new counter for the new image
     def new_counter(self):
         self.counts.append(self.current_counts)
         self.current_counts = 0
 
+    #gets the average number of queries
     def get_average(self, iter=50000):
         counts = np.array(self.counts)
         return np.mean(counts[counts<iter])
-    
